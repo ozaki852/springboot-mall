@@ -1,9 +1,7 @@
 package com.mall.springbootmall.dto;
 
 import com.mall.springbootmall.constant.ProductCategory;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ProductQueryParams {
 
     private ProductCategory category;

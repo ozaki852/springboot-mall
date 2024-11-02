@@ -5,6 +5,7 @@ import com.mall.springbootmall.dto.ProductQueryParams;
 import com.mall.springbootmall.dto.ProductRequest;
 import com.mall.springbootmall.model.Product;
 import com.mall.springbootmall.service.ProductService;
+import com.mall.springbootmall.util.Page;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -23,11 +24,8 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private ProductQueryParams productQueryParams;
-
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProduct(
+    public ResponseEntity<Page<Product>> getProduct(
             //查詢條件 Filtering
             @RequestParam(required = false) ProductCategory category,
             @RequestParam(required = false) String search,
@@ -40,14 +38,28 @@ public class ProductController {
             @RequestParam(defaultValue = "5") @Max(1000) @Min(0) Integer limit,
             @RequestParam(defaultValue = "0") @Min(0) Integer offset
     ) {
+        ProductQueryParams productQueryParams = new ProductQueryParams();
         productQueryParams.setCategory(category);
         productQueryParams.setSearch(search);
         productQueryParams.setOrderBy(orderBy);
         productQueryParams.setSort(sort);
         productQueryParams.setLimit(limit);
         productQueryParams.setOffset(offset);
+
+        //取得 product list
         List<Product> productList = productService.getProducts(productQueryParams);
-        return ResponseEntity.status(HttpStatus.OK).body(productList);
+
+        //取得 product 總數
+        Integer total = productService.countProduct(productQueryParams);
+
+        //分頁
+        Page<Product> page = new Page<>();
+        page.setLimit(limit);
+        page.setOffset(offset);
+        page.setTotal(total);
+        page.setResults(productList);
+
+        return ResponseEntity.status(HttpStatus.OK).body(page);
     }
 
     @GetMapping("/products/{productId}")
