@@ -9,7 +9,6 @@ public class User {
 
     private Integer userId;
 
-    @JsonProperty("E_mail")
     private String email;
 
     @JsonIgnore
